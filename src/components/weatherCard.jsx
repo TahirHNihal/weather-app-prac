@@ -18,10 +18,11 @@ const weatherCard = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     searchLocationhandler();
-    timeHandler();
+    timeHandler(weatherData?.location?.localtime_epoch);
   };
-  const timeHandler = () => {
-    const d = new Date();
+
+  const timeHandler = (d) => {
+    // const d = new Date();
     let hr = d.getHours();
     let min = d.getMinutes();
     let ampm = hr >= 12 ? "pm" : "am";
@@ -30,11 +31,12 @@ const weatherCard = () => {
     min = min < 10 ? "0" + min : min;
     let strTime = `${hr}:${min}${ampm}`;
     setTime(strTime);
+    console.log(strTime);
   };
   return (
     <>
       <div>
-        <div className="w-[350px] bg-white dark:bg-slate-500/10 border border-slate-700 rounded-lg text-white mb-2 p-2">
+        <div className="w-[350px] bg-white dark:bg-slate-500/10 border border-slate-700 rounded-lg text-white mb-2 p-2 hover:scale-105 duration-300 ease-in-out">
           <form
             className="flex justify-between items-center w-full"
             onSubmit={handleSubmit}
@@ -63,7 +65,7 @@ const weatherCard = () => {
               className="bg-inherit w-8/12 p-2"
               placeholder="Your location..."
               required
-              value={location}
+              //   value={location}
               onChange={(e) => {
                 setLocation(e.target.value);
               }}
@@ -76,31 +78,37 @@ const weatherCard = () => {
             </button>
           </form>
         </div>
-        <div className="w-[350px] bg-white dark:bg-slate-500/10 border border-slate-700 rounded-lg p-5 text-slate-950 dark:text-white flex flex-col items-center justify-center gap-8 text-xl hover:scale-105 duration-300 ease-in-out">
-          <div className="flex items-center justify-between w-full">
-            <p className="capitalize w-8/12 overflow-hidden">
-              {weatherData?.location?.name
-                ? weatherData?.location?.name
-                : "dhaka"}
-            </p>
-            <p className="w-4/12 text-right uppercase">{time ?? "A"}</p>
-          </div>
-          <div className="w-full text-center">
-            <img
-              src={night}
-              alt=""
-              className="drop-shadow-2xl h-[120px] inline-block"
-            />
+        {weatherData ? (
+          <div className="w-[350px] bg-white dark:bg-slate-500/10 border border-slate-700 rounded-lg p-5 text-slate-950 dark:text-white flex flex-col items-center justify-center gap-8 text-xl hover:scale-105 duration-300 ease-in-out">
+            <div className="flex items-center justify-between w-full">
+              <p className="capitalize w-8/12 overflow-hidden">
+                {weatherData?.location?.name
+                  ? weatherData?.location?.name
+                  : "dhaka"}
+              </p>
+              <p className="w-4/12 text-right uppercase">{time}</p>
+            </div>
+            <div className="w-full text-center">
+              <img
+                src={night}
+                alt=""
+                className="drop-shadow-2xl h-[120px] inline-block"
+              />
 
-            <p className="capitalize">
-              {weatherData?.current?.condition?.text}
-            </p>
+              <p className="capitalize">
+                {weatherData?.current?.condition?.text}
+              </p>
+            </div>
+            <div className="flex items-center justify-between w-full">
+              <p>{weatherData?.current?.temp_c}°C</p>
+              <p>{weatherData?.current?.wind_mph}MP/H</p>
+            </div>
           </div>
-          <div className="flex items-center justify-between w-full">
-            <p>{weatherData?.current?.temp_c}°C</p>
-            <p>{weatherData?.current?.wind_mph}MP/H</p>
+        ) : (
+          <div className="w-[350px] bg-white dark:bg-slate-500/10 border border-slate-700 rounded-lg p-5 text-slate-950 dark:text-white flex flex-col items-center justify-center gap-8 text-xl hover:scale-105 duration-300 ease-in-out">
+            <h1>You haven't search yet</h1>
           </div>
-        </div>
+        )}
       </div>
     </>
   );
