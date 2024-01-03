@@ -3,12 +3,42 @@ import day from "../assets/day.svg";
 import night from "../assets/night.svg";
 
 const weatherCard = () => {
-  const [time, setTime] = useState("9:30");
+  const [time, setTime] = useState(null);
+  const [weatherData, setWeatherData] = useState(null);
+  const [location, setLocation] = useState("dhaka");
+  const API_KEY = "1e60842d1cbd4c93a0d120051240301";
+  const url = `https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${location}&aqi=no`;
+
+  const searchLocationhandler = (e) => {
+    fetch(url)
+      .then((res) => res.json())
+      .then((data) => setWeatherData(data))
+      .catch((error) => console.log(error.message));
+  };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    searchLocationhandler();
+    timeHandler();
+  };
+  const timeHandler = () => {
+    const d = new Date();
+    let hr = d.getHours();
+    let min = d.getMinutes();
+    let ampm = hr >= 12 ? "pm" : "am";
+    hr = hr % 12;
+    hr = hr ? hr : 12; // the hour '0' should be '12'
+    min = min < 10 ? "0" + min : min;
+    let strTime = `${hr}:${min}${ampm}`;
+    setTime(strTime);
+  };
   return (
     <>
       <div>
         <div className="w-[350px] bg-white dark:bg-slate-500/10 border border-slate-700 rounded-lg text-white mb-2 p-2">
-          <form className="flex justify-between items-center w-full">
+          <form
+            className="flex justify-between items-center w-full"
+            onSubmit={handleSubmit}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -33,6 +63,10 @@ const weatherCard = () => {
               className="bg-inherit w-8/12 p-2"
               placeholder="Your location..."
               required
+              value={location}
+              onChange={(e) => {
+                setLocation(e.target.value);
+              }}
             />
             <button
               type="submit"
@@ -44,12 +78,12 @@ const weatherCard = () => {
         </div>
         <div className="w-[350px] bg-white dark:bg-slate-500/10 border border-slate-700 rounded-lg p-5 text-slate-950 dark:text-white flex flex-col items-center justify-center gap-8 text-xl hover:scale-105 duration-300 ease-in-out">
           <div className="flex items-center justify-between w-full">
-            <p>Dhaka</p>
-            <p>
-              {time}
-              {/* <span>09</span>:<span>30</span> */}
-              <span>PM</span>
+            <p className="capitalize w-8/12 overflow-hidden">
+              {weatherData?.location?.name
+                ? weatherData?.location?.name
+                : "dhaka"}
             </p>
+            <p className="w-4/12 text-right uppercase">{time ?? "A"}</p>
           </div>
           <div className="w-full text-center">
             <img
@@ -57,11 +91,14 @@ const weatherCard = () => {
               alt=""
               className="drop-shadow-2xl h-[120px] inline-block"
             />
-            <p>Night</p>
+
+            <p className="capitalize">
+              {weatherData?.current?.condition?.text}
+            </p>
           </div>
           <div className="flex items-center justify-between w-full">
-            <p>19°C</p>
-            <p>2.2KM/H</p>
+            <p>{weatherData?.current?.temp_c}°C</p>
+            <p>{weatherData?.current?.wind_mph}MP/H</p>
           </div>
         </div>
       </div>
